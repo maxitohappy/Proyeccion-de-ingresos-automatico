@@ -68,6 +68,17 @@ PLANTILLA = """<!doctype html>
 """
 
 
+REDIRECCION = """<!doctype html>
+<html lang="es"><head><meta charset="UTF-8" /><title>Proyección de Ingresos</title>
+<script>
+  // En GitHub Pages de proyecto la app vive en /<repositorio>/; en otro servidor, en la raíz.
+  var partes = location.pathname.split("/").filter(Boolean);
+  var raiz = location.hostname.endsWith("github.io") && partes.length ? "/" + partes[0] + "/" : "/";
+  location.replace(raiz);
+</script></head><body>Redirigiendo…</body></html>
+"""
+
+
 def construir() -> list[str]:
     if SITIO.exists():
         shutil.rmtree(SITIO)
@@ -86,6 +97,9 @@ def construir() -> list[str]:
             .replace("__REQUISITOS__", json.dumps(REQUISITOS)))
     (SITIO / "index.html").write_text(html, encoding="utf-8")
     (SITIO / ".nojekyll").write_text("", encoding="utf-8")
+    # Al recargar una subpágina (ej. /reportes) el servidor estático no la encuentra: se vuelve a la
+    # portada de la app. Los datos no se pierden porque viven en el navegador.
+    (SITIO / "404.html").write_text(REDIRECCION, encoding="utf-8")
     print(f"Sitio construido en {SITIO} ({len(rutas)} archivos)")
     return rutas
 

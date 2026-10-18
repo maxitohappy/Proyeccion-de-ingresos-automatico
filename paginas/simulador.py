@@ -6,7 +6,7 @@ from core import factores as fac
 from core import simulador
 from core.esquema import MESES
 from core.maestros import unidad_grupo
-from ui.comun import (COLOR_ACTUAL, COLOR_ANTERIOR, aviso_privacidad, estado, mostrar, nombres_unidades,
+from ui.comun import (editor, COLOR_ACTUAL, COLOR_ANTERIOR, aviso_privacidad, estado, mostrar, nombres_unidades,
                       requiere_ingresos, requiere_maestros)
 from ui.estado_proyeccion import calcular
 
@@ -90,8 +90,8 @@ for a in anios_proy:
                   "Reajuste IPC (%)": round(ipc * 100, 2),
                   "Tarifa D° emb. internacional (USD)": tarifa_int_ini,
                   "Tipo de cambio ($/USD)": float(sup_fac["dolar_proyectado"].get(str(a), tc_defecto))})
-supuestos = st.data_editor(pd.DataFrame(filas), hide_index=True, width="stretch", disabled=["Año"],
-                           key=f"sim_sup_{unidad}_{anio_final}")
+supuestos = editor(pd.DataFrame(filas), f"sim_sup_{unidad}_{anio_final}", hide_index=True, width="stretch",
+                   disabled=["Año"])
 st.caption(f"El crecimiento de {anio_base} completa los meses sin dato real a partir del mismo mes de {anio_base - 1} "
            f"(por defecto, el crecimiento observado de la unidad).")
 
@@ -103,11 +103,11 @@ with c1:
     base_df = pd.DataFrame({"Concepto": [simulador.CONCEPTOS_SIM[c] for c in simulador.CONCEPTOS_REAJUSTABLES],
                             "clave": simulador.CONCEPTOS_REAJUSTABLES,
                             "Monto ($)": [round(concepto_sim(anio_base, c)) for c in simulador.CONCEPTOS_REAJUSTABLES]})
-    base_ed = st.data_editor(base_df, hide_index=True, disabled=["Concepto"], column_config={"clave": None},
-                             key=f"sim_base_{unidad}")
+    base_ed = editor(base_df, f"sim_base_{unidad}", hide_index=True, disabled=["Concepto"],
+                     column_config={"clave": None, "Monto ($)": st.column_config.NumberColumn("Monto ($)", format="localized")})
 with c2:
     st.write("**Escenarios de TPE** ($ por pasajero embarcado en el primer año; luego se reajusta por IPC):")
-    tpe_ed = st.data_editor(pd.DataFrame({"TPE ($/pax)": [None, None]}), num_rows="dynamic", hide_index=True,
+    tpe_ed = st.data_editor(pd.DataFrame({"TPE ($/pax)": pd.Series([float("nan")] * 2, dtype=float)}), num_rows="dynamic", hide_index=True,
                             key=f"sim_tpe_{unidad}")
     notas = st.text_area("Notas para el Excel", "Crecimientos y tarifas sujetos a revisión.")
 
@@ -120,7 +120,7 @@ with st.expander("Pasajeros mensuales (editar si es necesario)"):
         st.write(f"**{etiqueta}** (vacío = se proyecta con el crecimiento del año)")
         df = pd.DataFrame(datos, index=MESES)
         df.columns = [str(c) for c in df.columns]
-        eds[etiqueta] = st.data_editor(df, width="stretch", key=f"sim_pax_{etiqueta}_{unidad}")
+        eds[etiqueta] = editor(df, f"sim_pax_{etiqueta}_{unidad}", width="stretch")
 
 # ---------------------------------------------------------------- Cálculo
 def a_dict(df):

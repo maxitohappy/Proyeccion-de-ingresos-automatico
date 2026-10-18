@@ -5,9 +5,10 @@ import streamlit as st
 from core import control, modelos
 from core import proyeccion as pr
 from core.esquema import CONCEPTOS_PROYECCION, MESES, MESES_CORTOS
-from ui.comun import (COLOR_ACTUAL, COLOR_ANTERIOR, COLOR_PROYECTADO, aviso_privacidad, estado, mostrar,
+from ui.comun import (editor, COLOR_ACTUAL, COLOR_ANTERIOR, COLOR_PROYECTADO, aviso_privacidad, estado, mostrar,
                       nombres_unidades, numero, porcentaje, requiere_ingresos, requiere_maestros)
-from ui.estado_proyeccion import calcular, cargar_config, guardar_config
+from core import almacenamiento as alm
+from ui.estado_proyeccion import ARCHIVO_CONFIG, calcular, cargar_config, guardar_config
 
 aviso_privacidad()
 st.title("Proyección de ingresos")
@@ -67,8 +68,8 @@ with st.expander("2 · Crecimientos (año siguiente y método manual)", expanded
                       f"Crecimiento {anio + 1} (%)": None if p.get("g_siguiente") is None else p["g_siguiente"] * 100,
                       f"Manual {anio} (%)": None if g.get(str(anio)) is None else g[str(anio)] * 100,
                       f"Manual {anio + 1} (%)": None if g.get(str(anio + 1)) is None else g[str(anio + 1)] * 100})
-    ed = st.data_editor(pd.DataFrame(filas), hide_index=True, width="stretch", disabled=["Concepto", "clave"],
-                        column_config={"clave": None}, key="ed_crec")
+    ed = editor(pd.DataFrame(filas), "ed_crec", hide_index=True, width="stretch",
+                disabled=["Concepto", "clave"], column_config={"clave": None})
     for r in ed.to_dict("records"):
         p = {}
         if pd.notna(r[f"Crecimiento {anio + 1} (%)"]):
@@ -125,7 +126,9 @@ with st.spinner("Proyectando…"):
     except ValueError as err:
         st.error(str(err))
         st.stop()
-if config != cargar_config():
+if not alm.existe(ARCHIVO_CONFIG):
+    guardar_config(config)  # primera visita: la configuración por defecto queda como guardada
+elif config != cargar_config():
     c2.info("Hay cambios de configuración sin guardar: presiona **Calcular proyección** para guardarlos. "
             "Los resultados de abajo ya los incluyen.")
 for a in res.avisos:
@@ -158,7 +161,7 @@ fig.add_bar(x=[MESES_CORTOS[m - 1] for m in real_m.index if real_m[m]], y=[v / 1
 fig.add_bar(x=[MESES_CORTOS[m - 1] for m in proy_m.index if proy_m[m]], y=[v / 1e6 for v in proy_m if v],
             name=f"{anio} proyectado", marker_color=COLOR_PROYECTADO, hovertemplate="%{x}: MM$ %{y:,.0f}<extra></extra>")
 fig.update_layout(title=f"Ingresos mensuales {anio} (MM$)", barmode="group", bargap=0.25, bargroupgap=0.08, height=380,
-                  margin=dict(l=10, r=10, t=60, b=10), legend=dict(orientation="h", y=1.13), separators=",.",
+                  margin=dict(l=10, r=10, t=80, b=10), legend=dict(orientation="h", y=1.0, yanchor="bottom"), separators=",.",
                   xaxis=dict(categoryorder="array", categoryarray=MESES_CORTOS))
 fig.update_yaxes(gridcolor="rgba(128,128,128,0.2)", tickformat=",.0f")
 st.plotly_chart(fig, width="stretch")

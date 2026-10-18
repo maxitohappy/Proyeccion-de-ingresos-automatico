@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from core import factores as fac
-from ui.comun import COLOR_ACTUAL, COLOR_PROYECTADO, aviso_privacidad, estado, mostrar
+from ui.comun import editor, COLOR_ACTUAL, COLOR_PROYECTADO, aviso_privacidad, estado, mostrar
 
 aviso_privacidad()
 st.title("Factores económicos y tarifas")
@@ -37,7 +37,7 @@ with tab_sup:
     filas = [{"Año": a, "Dólar proyectado ($/USD)": sup["dolar_proyectado"].get(str(a)),
               "IPC anual esperado (%)": (sup["ipc_anual_esperado"].get(str(a)) or 0) * 100 if sup["ipc_anual_esperado"].get(str(a)) is not None else None}
              for a in sorted(set(anios) | {anio_base, anio_base + 1})]
-    editado = st.data_editor(pd.DataFrame(filas), hide_index=True, width="stretch", disabled=["Año"], key="sup_editor")
+    editado = editor(pd.DataFrame(filas), "sup_editor", hide_index=True, width="stretch", disabled=["Año"])
     regla = st.selectbox("Reajuste automático de tarifas nacionales en CLP", list(fac.REGLAS_REAJUSTE),
                          index=list(fac.REGLAS_REAJUSTE).index(sup.get("regla_reajuste", "trimestral")),
                          format_func=fac.REGLAS_REAJUSTE.get)
@@ -76,8 +76,8 @@ with tab_tabla:
     fig = go.Figure()
     fig.add_bar(x=tabla.index[real], y=tabla["dolar"][real], name="Observado", marker_color=COLOR_ACTUAL)
     fig.add_bar(x=tabla.index[~real], y=tabla["dolar"][~real], name="Supuesto", marker_color=COLOR_PROYECTADO)
-    fig.update_layout(title="Dólar promedio mensual ($/USD)", height=340, margin=dict(l=10, r=10, t=50, b=10),
-                      legend=dict(orientation="h", y=1.12), bargap=0.25, separators=",.")
+    fig.update_layout(title="Dólar promedio mensual ($/USD)", height=340, margin=dict(l=10, r=10, t=80, b=10),
+                      legend=dict(orientation="h", y=1.0, yanchor="bottom"), bargap=0.25, separators=",.")
     fig.update_yaxes(range=[tabla["dolar"].min() * 0.9, tabla["dolar"].max() * 1.05], gridcolor="rgba(128,128,128,0.2)")
     st.plotly_chart(fig, width="stretch")
 

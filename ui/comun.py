@@ -110,3 +110,21 @@ def requiere_ingresos(e: dict) -> bool:
 
 def nombres_unidades(e: dict) -> dict[int, str]:
     return maestros.nombres_unidades(e["maestros"].unidades)
+
+
+def editor(df: pd.DataFrame, clave: str, **kwargs) -> pd.DataFrame:
+    """`st.data_editor` compatible con stlite.
+
+    En stlite 1.9.2, un data_editor con `key` y filas fijas falla (NameError: arrow_table). En el
+    navegador se omite `key` y se agrega una columna oculta con la clave para que cada editor tenga
+    una identidad única.
+    """
+    if EN_NAVEGADOR and kwargs.get("num_rows", "fixed") == "fixed":
+        d = df.copy()
+        d["_editor"] = clave
+        config = dict(kwargs.pop("column_config", None) or {})
+        config["_editor"] = None
+        if isinstance(kwargs.get("disabled"), list):
+            kwargs["disabled"] = kwargs["disabled"] + ["_editor"]
+        return st.data_editor(d, column_config=config, **kwargs).drop(columns="_editor")
+    return st.data_editor(df, key=clave, **kwargs)
