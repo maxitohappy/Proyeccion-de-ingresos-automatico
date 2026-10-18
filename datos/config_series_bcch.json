@@ -1,0 +1,11 @@
+{
+  "_instrucciones": "Códigos de series de la API BDE del Banco Central. Los vacíos se completan con: python scripts/buscar_series_bcch.py \"texto a buscar\" (requiere BCCH_USER y BCCH_PASS). agregacion: promedio (series diarias) o ultimo (series mensuales/trimestrales).",
+  "dolar": {"codigo": "F073.TCO.PRE.Z.D", "agregacion": "promedio", "descripcion": "Dólar observado diario"},
+  "uf": {"codigo": "F073.UFF.PRE.Z.D", "agregacion": "promedio", "descripcion": "Unidad de Fomento diaria"},
+  "ipc": {"codigo": "F074.IPC.VAR.Z.Z.C.M", "agregacion": "ultimo", "descripcion": "IPC general, variación mensual (%)"},
+  "imacec": {"codigo": "", "agregacion": "ultimo", "descripcion": "IMACEC, variación anual (%) – buscar: imacec"},
+  "pib": {"codigo": "", "agregacion": "ultimo", "descripcion": "PIB trimestral, variación anual (%) – buscar: producto interno bruto"},
+  "pib_regional": {"codigo": "", "agregacion": "ultimo", "descripcion": "PIB regional (una serie por región, ej. pib_regional_10) – buscar: PIB regional"},
+  "eee_ipc_12m": {"codigo": "", "agregacion": "ultimo", "descripcion": "EEE: inflación esperada a 12 meses – buscar: expectativas inflación"},
+  "eee_dolar_11m": {"codigo": "", "agregacion": "ultimo", "descripcion": "EEE: tipo de cambio esperado a 11 meses – buscar: expectativas tipo de cambio"}
+}

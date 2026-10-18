@@ -1,0 +1,27 @@
+# --- Datos: NUNCA se publican datos reales ---
+data/
+salidas/
+_site/
+*.xlsx
+*.xls
+*.xlsm
+*.pdf
+*.docx
+*.pptx
+*.parquet
+*.zip
+*.csv
+# Excepción: datos 100 % ficticios de ejemplo
+!ejemplos/*.csv
+!ejemplos/*.xlsx
+
+# Credenciales
+.streamlit/secrets.toml
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/datos_locales/
