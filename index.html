@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Proyección de Ingresos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.9.2/build/stlite.css" />
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #fff; }
+    #cargando { max-width: 560px; margin: 18vh auto; padding: 0 16px; color: #1f3864; text-align: center; }
+    #cargando p { color: #52514e; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div id="cargando">
+    <h2>Proyección de Ingresos</h2>
+    <p>Cargando la aplicación en tu navegador (la primera vez puede tardar 30–60 segundos).<br />
+       Tus archivos se procesan solo en este equipo: no se envían a ningún servidor.</p>
+  </div>
+  <div id="root"></div>
+  <script type="module">
+    import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.9.2/build/stlite.js";
+    const archivos = ["app.py", "core/__init__.py", "core/almacenamiento.py", "core/clasificacion.py", "core/control.py", "core/demo.py", "core/esquema.py", "core/factores.py", "core/historico.py", "core/ingest.py", "core/maestros.py", "core/modelos.py", "core/proyeccion.py", "core/reportes/__init__.py", "core/reportes/excel.py", "core/reportes/ppt.py", "core/reportes/texto.py", "core/simulador.py", "core/tablas.py", "core/trafico.py", "paginas/carga_informe.py", "paginas/control.py", "paginas/factores.py", "paginas/ingresos_concepto.py", "paginas/inicio.py", "paginas/maestros.py", "paginas/operaciones.py", "paginas/pasajeros.py", "paginas/proyeccion.py", "paginas/reportes.py", "paginas/simulador.py", "ui/comun.py", "ui/estado_proyeccion.py", "ui/trafico_ui.py", "datos/config_series_bcch.json", "datos/economicos.json", "ejemplos/informe_gestion_2026_ejemplo.xlsx", "ejemplos/informe_sac_2025_ejemplo.csv", "ejemplos/operaciones_sac_ejemplo.csv", "ejemplos/pasajeros_copae_ejemplo.csv", "ejemplos/totales_anteriores_ejemplo.csv"];
+    const files = Object.fromEntries(archivos.map((ruta) => [ruta, { url: "./" + ruta }]));
+    mount(
+      {
+        requirements: ["openpyxl", "xlsxwriter", "python-pptx", "statsmodels", "plotly"],
+        entrypoint: "app.py",
+        files,
+        idbfsMountpoints: ["/mnt"],
+        env: { PROYECCION_DATA_DIR: "/mnt/datos", PROYECCION_EN_NAVEGADOR: "1" },
+        streamlitConfig: { "client.toolbarMode": "viewer", "theme.primaryColor": "#2a78d6" },
+      },
+      document.getElementById("root"),
+    );
+    const observador = new MutationObserver(() => {
+      if (document.getElementById("root").childElementCount) {
+        document.getElementById("cargando").remove();
+        observador.disconnect();
+      }
+    });
+    observador.observe(document.getElementById("root"), { childList: true });
+  </script>
+</body>
+</html>
